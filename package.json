@@ -9,6 +9,7 @@
     "preview": "astro preview",
     "preview:network": "astro preview --host",
     "astro": "astro",
+    "migrate": "node scripts/migrate.mjs",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },
@@ -34,6 +35,7 @@
     "typescript": "^5.4.2"
   },
   "devDependencies": {
+    "gray-matter": "^4.0.3",
     "playwright": "^1.63.0"
   }
 }

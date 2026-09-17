@@ -2,6 +2,7 @@
 title: "中英文混排与代码块测试"
 description: "用于验证 featured / updatedDate / tags / categories 字段与中文排版渲染的测试文章。"
 date: "2026-09-15"
+draft: true
 updatedDate: "2026-09-16"
 featured: true
 tags: ["typography", "test"]
