@@ -10,7 +10,8 @@ export default {
     extend: {
       fontFamily: {
         sans: [
-          "Inter",
+          "CodeNewRoman",
+          "Resource Han Rounded CN",
           "PingFang SC",
           "Hiragino Sans GB",
           "Microsoft YaHei",
@@ -19,12 +20,18 @@ export default {
           ...defaultTheme.fontFamily.sans,
         ],
         serif: [
-          "Lora",
+          "CodeNewRoman",
+          "Resource Han Rounded CN",
           "Songti SC",
           "Noto Serif CJK SC",
           "Noto Serif SC",
           "SimSun",
           ...defaultTheme.fontFamily.serif,
+        ],
+        mono: [
+          "CodeNewRoman",
+          "Resource Han Rounded CN",
+          ...defaultTheme.fontFamily.mono,
         ],
       },
     },
