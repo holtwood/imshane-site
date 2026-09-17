@@ -6,7 +6,12 @@ const blog = defineCollection({
     title: z.string(),
     description: z.string(),
     date: z.coerce.date(),
-    draft: z.boolean().optional()
+    updatedDate: z.coerce.date().optional(),
+    tags: z.array(z.string()).optional().default([]),
+    categories: z.array(z.string()).optional().default([]),
+    draft: z.boolean().optional(),
+    featured: z.boolean().optional(),
+    legacyUrl: z.string().optional(),
   }),
 });
 
@@ -16,8 +21,8 @@ const work = defineCollection({
     company: z.string(),
     role: z.string(),
     summary: z.string().optional(),
-    dateStart: z.coerce.date(),
-    dateEnd: z.union([z.coerce.date(), z.string()]),
+    startYear: z.number().int(),
+    endYear: z.union([z.number().int(), z.string()]).optional(),
   }),
 });
 
@@ -28,8 +33,11 @@ const projects = defineCollection({
     description: z.string(),
     date: z.coerce.date(),
     draft: z.boolean().optional(),
+    featured: z.boolean().optional(),
+    tags: z.array(z.string()).optional().default([]),
+    repoURL: z.string().optional(),
     demoURL: z.string().optional(),
-    repoURL: z.string().optional()
+    cover: z.string().optional(),
   }),
 });
 

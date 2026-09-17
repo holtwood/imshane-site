@@ -28,19 +28,6 @@ export function readingTime(html: string) {
   return `约 ${minutes} 分钟`;
 }
 
-export function dateRange(startDate: Date, endDate?: Date | string): string {
-  const startYear = startDate.getFullYear().toString();
-  let endYear: string;
-
-  if (endDate) {
-    if (typeof endDate === "string") {
-      endYear = endDate;
-    } else {
-      endYear = endDate.getFullYear().toString();
-    }
-  } else {
-    endYear = "Now";
-  }
-
-  return `${startYear} - ${endYear}`;
+export function yearRange(startYear: number, endYear?: number | string): string {
+  return `${startYear} — ${endYear ?? "Present"}`;
 }

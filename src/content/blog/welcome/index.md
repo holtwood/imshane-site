@@ -2,6 +2,9 @@
 title: "新站开张"
 description: "博客从 Hugo 迁移到 Astro，老文章已归档，新文章在这里继续。"
 date: "2026-09-17"
+tags: ["meta", "migration"]
+categories: ["life"]
+legacyUrl: "/post/2026/09/17/welcome/"
 ---
 
 这个站点基于 Astro Nano 重构，旧博客的 40 篇历史文章将逐步迁移到 `/blog` 下。

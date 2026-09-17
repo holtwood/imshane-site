@@ -4,7 +4,7 @@ import Container from "@components/Container.astro";
 import PageLayout from "@layouts/PageLayout.astro";
 import ArrowCard from "@components/ArrowCard.astro";
 import Link from "@components/Link.astro";
-import { dateRange, formatDateShort } from "@lib/utils";
+import { yearRange, formatDateShort } from "@lib/utils";
 import { SITE, HOME, SOCIALS } from "@consts";
 
 const blog = (await getCollection("blog"))
@@ -18,7 +18,7 @@ const projects = (await getCollection("projects"))
   .slice(0, SITE.NUM_PROJECTS_ON_HOMEPAGE);
 
 const allwork = (await getCollection("work"))
-  .sort((a, b) => new Date(b.data.dateStart).valueOf() - new Date(a.data.dateStart).valueOf())
+  .sort((a, b) => b.data.startYear - a.data.startYear)
   .slice(0, SITE.NUM_WORKS_ON_HOMEPAGE);
 ---
 
@@ -112,7 +112,7 @@ const allwork = (await getCollection("work"))
           {allwork.map(entry => (
             <li>
               <div class="text-sm opacity-75">
-                {dateRange(entry.data.dateStart, entry.data.dateEnd)}
+                {yearRange(entry.data.startYear, entry.data.endYear)}
               </div>
               <div class="font-semibold text-black dark:text-white">
                 {entry.data.company}
