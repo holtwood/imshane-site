@@ -11,3 +11,14 @@ pnpm build      # astro check && astro build → dist/
 ```
 
 历史博文迁移自 [holtwood/hugo-blog](https://github.com/holtwood/hugo-blog)（Hugo + hugo-xmin，已归档）。
+
+## 内容结构
+
+- `src/content/blog/` — 博客文章（40 篇，`{slug}/index.md` + 本地化图片）
+- `src/content/projects/` — 项目（`{slug}/index.md`，`featured`/`order` 控制首页与排序）
+- `src/pages/` — 页面路由（`/blog/`、`/tags/`、`/projects/`、`/about/`）
+- `scripts/` — Hugo 迁移工具（`migrate.mjs` / `verify-migration.mjs`）与 QA 脚本（`qa.mjs` / `smoke.mjs`）
+
+## 部署
+
+纯静态输出：`pnpm build` 生成 `dist/`，任意静态托管/Nginx/Caddy 直接服务即可，无服务端运行时、无数据库、无外部字体与追踪脚本。
