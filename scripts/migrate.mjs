@@ -34,6 +34,13 @@ const ONLY_SLUGS = args
   .flatMap(s => String(s).split(","))
   .filter(Boolean);
 
+// 人工审阅过的 description 固化表：存在时优先于自动 fallback，
+// 保证 --force 重跑不覆盖人工摘要。
+const DESC_FILE = path.resolve(import.meta.dirname, "descriptions.json");
+const DESC_OVERRIDE = fs.existsSync(DESC_FILE)
+  ? JSON.parse(fs.readFileSync(DESC_FILE, "utf8"))
+  : {};
+
 const EXT_BY_MIME = {
   "image/png": ".png",
   "image/jpeg": ".jpg",
@@ -113,18 +120,28 @@ async function downloadImage(url, dstDir, index) {
 }
 
 function collectImageRefs(body, defs) {
-  const refs = []; // {raw, alt, url}
+  const refs = []; // {raw, alt, url, defKey?}
   for (const m of body.matchAll(/!\[([^\]]*)\]\(([^)\s]+)[^)]*\)/g))
     refs.push({ raw: m[0], alt: m[1], url: m[2] });
+  // ![a][n] 与 ![][n] 均由此式覆盖（[^\]]* 可匹配空）
   for (const m of body.matchAll(/!\[([^\]]*)\]\[([^\]]*)\]/g)) {
-    const url = defs[m[2]] || defs[m[1]];
-    if (url) refs.push({ raw: m[0], alt: m[1], url });
-  }
-  for (const m of body.matchAll(/!\[\]\[([^\]]+)\]/g)) {
-    const url = defs[m[1]];
-    if (url) refs.push({ raw: m[0], alt: "", url });
+    const key = m[2] || m[1];
+    const url = defs[key];
+    if (url) refs.push({ raw: m[0], alt: m[1], url, defKey: key });
   }
   return refs;
+}
+
+// 图片引用本地化后，若 [n]: 定义行不再被任何普通链接/图片使用则移除，
+// 避免遗留指向远程 URL 的孤儿定义。
+function dropOrphanedDef(body, key) {
+  const esc = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const stillUsed =
+    new RegExp(`!\\[[^\\]]*\\]\\[${esc}\\]`).test(body) ||
+    new RegExp(`\\[[^\\]]+\\]\\[${esc}\\]`).test(body) ||
+    new RegExp(`\\[${esc}\\](?!\\s*[:\\[\\(])`).test(body);
+  if (stillUsed) return body;
+  return body.replace(new RegExp(`^\\s*\\[${esc}\\]:\\s*\\S+\\s*\\n?`, "m"), "");
 }
 
 async function migratePost(file) {
@@ -139,7 +156,13 @@ async function migratePost(file) {
   const date = String(fm.date).slice(0, 10);
   const legacyUrl = legacyPostUrl(new Date(date), rawSlug);
 
+  const dropEmpty = (field) => (v) => {
+    const keep = v != null && String(v).trim() !== "";
+    if (!keep) stats.normalizations.push({ file, field, from: v ?? null, to: "(empty removed)" });
+    return keep;
+  };
   const categories = (fm.categories || [])
+    .filter(dropEmpty("categories"))
     .map(c => {
       const n = normalizeCategory(String(c));
       if (n !== String(c).trim()) stats.normalizations.push({ file, field: "categories", from: c, to: n });
@@ -148,6 +171,7 @@ async function migratePost(file) {
     .filter(Boolean);
   const seenTags = new Set();
   const tags = (fm.tags || [])
+    .filter(dropEmpty("tags"))
     .map(t => {
       const orig = String(t);
       const n = normalizeTag(orig);
@@ -180,21 +204,29 @@ async function migratePost(file) {
   }
 
   fs.mkdirSync(dstDir, { recursive: true });
+  const localByUrl = new Map(); // 同一 URL 只下载一次
   let i = 0;
   for (const r of refs) {
-    i++;
-    const dl = await downloadImage(r.url, dstDir, i);
-    if (dl.ok) {
-      const md = `![${r.alt}](./${dl.name})`;
-      body = body.split(r.raw).join(md);
-      stats.images.push({ file, newSlug, url: r.url, local: `${newSlug}/${dl.name}`, bytes: dl.bytes });
-    } else {
-      stats.missingAssets.push({ file, newSlug, url: r.url, status: dl.status, alt: r.alt });
+    let local = localByUrl.get(r.url);
+    if (!local) {
+      i++;
+      const dl = await downloadImage(r.url, dstDir, i);
+      if (dl.ok) {
+        local = dl.name;
+        localByUrl.set(r.url, local);
+        stats.images.push({ file, newSlug, url: r.url, local: `${newSlug}/${dl.name}`, bytes: dl.bytes });
+      } else {
+        stats.missingAssets.push({ file, newSlug, url: r.url, status: dl.status, alt: r.alt });
+        continue;
+      }
     }
+    body = body.split(r.raw).join(`![${r.alt}](./${local})`);
+    if (r.defKey) body = dropOrphanedDef(body, r.defKey);
   }
 
-  const description = fallbackDescription(body);
-  stats.autoDescriptions.push({ newSlug, description });
+  const description = DESC_OVERRIDE[newSlug] ?? fallbackDescription(body);
+  if (!DESC_OVERRIDE[newSlug]) stats.autoDescriptions.push({ newSlug, description });
+  else stats.reviewedDescriptions?.push(newSlug);
 
   const out = matter.stringify(body.replace(/\n{3,}/g, "\n\n").trim() + "\n", {
     title: fm.title,

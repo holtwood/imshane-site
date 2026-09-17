@@ -1,4 +1,4 @@
-old_url,new_url,title
+source_file,old_slug,new_slug,old_url,new_url,title
 /post/2016/07/01/my-first-blog/,/blog/my-first-blog/,"博客播种"
 /post/2016/07/03/how-to-use-hugo/,/blog/how-to-use-hugo/,"Hugo使用记录"
 /post/2016/07/14/file-record-1-the-life-of-david-gale/,/blog/file-record-1-the-life-of-david-gale/,"观《大卫·戈尔的一生》"
