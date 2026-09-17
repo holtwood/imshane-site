@@ -42,6 +42,11 @@ const { Content } = await project.render();
       <div class="animate text-2xl font-semibold text-black dark:text-white">
         {project.data.title}
       </div>
+      {project.data.tags.length > 0 && (
+        <div class="animate text-sm opacity-60">
+          {project.data.tags.join(" · ")}
+        </div>
+      )}
       {(project.data.demoURL || project.data.repoURL) && (
         <nav class="animate flex gap-1">
           {project.data.demoURL && (
@@ -54,7 +59,7 @@ const { Content } = await project.render();
           )}
           {project.data.repoURL && (
             <Link href={project.data.repoURL} external>
-              repo
+              GitHub
             </Link>
           )}
         </nav>

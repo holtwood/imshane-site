@@ -2,7 +2,6 @@
 import { getCollection } from "astro:content";
 import Container from "@components/Container.astro";
 import PageLayout from "@layouts/PageLayout.astro";
-import ArrowCard from "@components/ArrowCard.astro";
 import Link from "@components/Link.astro";
 import { yearRange, formatDateShort } from "@lib/utils";
 import { SITE, HOME, SOCIALS } from "@consts";
@@ -13,8 +12,8 @@ const blog = (await getCollection("blog"))
   .slice(0, SITE.NUM_POSTS_ON_HOMEPAGE);
 
 const projects = (await getCollection("projects"))
-  .filter(project => !project.data.draft)
-  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .filter(project => !project.data.draft && project.data.featured)
+  .sort((a, b) => (a.data.order ?? 99) - (b.data.order ?? 99))
   .slice(0, SITE.NUM_PROJECTS_ON_HOMEPAGE);
 
 const allwork = (await getCollection("work"))
@@ -92,8 +91,18 @@ const allwork = (await getCollection("work"))
         </div>
         <ul class="flex flex-col gap-4">
           {projects.map(project => (
-            <li>
-              <ArrowCard entry={project} />
+            <li class="space-y-1">
+              <Link href={`/projects/${project.slug}/`} underline={false}>
+                <span class="font-semibold text-black dark:text-white">{project.data.title}</span>
+              </Link>
+              <p class="text-sm opacity-75 line-clamp-2">
+                {project.data.description}
+              </p>
+              {project.data.tags.length > 0 && (
+                <p class="text-sm opacity-50">
+                  {project.data.tags.slice(0, 4).join(" · ")}
+                </p>
+              )}
             </li>
           ))}
         </ul>
