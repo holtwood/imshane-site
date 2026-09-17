@@ -17,15 +17,18 @@ export function formatDateShort(date: Date) {
   return `${date.getMonth() + 1}月${date.getDate()}日`;
 }
 
-export function readingTime(html: string) {
+export function readingMinutes(html: string) {
   const textOnly = html.replace(/<[^>]+>/g, "");
   const cjkChars = (textOnly.match(/[一-鿿　-鿽＀-￯]/g) || []).length;
   const latinWords = textOnly
     .replace(/[一-鿿　-鿽＀-￯]/g, " ")
     .split(/\s+/)
     .filter(Boolean).length;
-  const minutes = Math.max(1, Math.round(cjkChars / 400 + latinWords / 200));
-  return `约 ${minutes} 分钟`;
+  return Math.max(1, Math.round(cjkChars / 400 + latinWords / 200));
+}
+
+export function readingTime(html: string) {
+  return `约 ${readingMinutes(html)} 分钟`;
 }
 
 export function yearRange(startYear: number, endYear?: number | string): string {

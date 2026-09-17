@@ -3,23 +3,37 @@ import { type CollectionEntry, getCollection } from "astro:content";
 import PageLayout from "@layouts/PageLayout.astro";
 import Container from "@components/Container.astro";
 import FormattedDate from "@components/FormattedDate.astro";
-import { readingTime } from "@lib/utils";
+import Link from "@components/Link.astro";
+import { readingTime, readingMinutes } from "@lib/utils";
 import BackToPrev from "@components/BackToPrev.astro";
 
 export async function getStaticPaths() {
   const posts = (await getCollection("blog"))
     .filter(post => !post.data.draft)
-    .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
-  return posts.map((post) => ({
+    .sort((a, b) =>
+      b.data.date.valueOf() - a.data.date.valueOf() ||
+      a.slug.localeCompare(b.slug));
+  return posts.map((post, i) => ({
     params: { slug: post.slug },
-    props: post,
+    props: {
+      post,
+      newer: posts[i - 1] ?? null,
+      older: posts[i + 1] ?? null,
+    },
   }));
 }
-type Props = CollectionEntry<"blog">;
+type Props = {
+  post: CollectionEntry<"blog">;
+  newer: CollectionEntry<"blog"> | null;
+  older: CollectionEntry<"blog"> | null;
+};
 
-const post = Astro.props;
-const { Content } = await post.render();
+const { post, newer, older } = Astro.props;
+const { Content, headings } = await post.render();
 const { title, date, updatedDate, tags, categories } = post.data;
+
+const tocHeadings = headings.filter(h => h.depth >= 2 && h.depth <= 3);
+const showToc = tocHeadings.length >= 4 || readingMinutes(post.body) >= 8;
 ---
 
 <PageLayout title={title} description={post.data.description}>
@@ -54,13 +68,49 @@ const { title, date, updatedDate, tags, categories } = post.data;
             <span>分类：{categories.join(" · ")}</span>
           )}
           {tags.length > 0 && (
-            <span>标签：{tags.join(" · ")}</span>
+            <span>标签：{tags.map((tag, i) => (
+              <>{i > 0 && " · "}<Link href={`/tags/${tag}/`} underline={false}>{tag}</Link></>
+            ))}</span>
           )}
         </div>
       )}
     </div>
+    {showToc && (
+      <details class="animate toc my-8 text-sm border border-black/10 dark:border-white/15 rounded px-4 py-3">
+        <summary class="cursor-pointer select-none font-medium opacity-75">
+          目录<span class="opacity-60">（{tocHeadings.length}）</span>
+        </summary>
+        <ol class="mt-3 space-y-1.5">
+          {tocHeadings.map(h => (
+            <li class={h.depth === 3 ? "toc-h3" : "toc-h2"}>
+              <Link href={`#${h.slug}`} underline={false}>{h.text}</Link>
+            </li>
+          ))}
+        </ol>
+      </details>
+    )}
     <article class="animate">
       <Content />
     </article>
+    {(newer || older) && (
+      <nav class="animate mt-16 pt-8 border-t border-black/10 dark:border-white/15 flex justify-between gap-6 text-sm">
+        <div class="min-w-0">
+          {newer && (
+            <>
+              <div class="opacity-60 mb-1">← 较新文章</div>
+              <Link href={`/blog/${newer.slug}/`} underline={false}>{newer.data.title}</Link>
+            </>
+          )}
+        </div>
+        <div class="min-w-0 text-right">
+          {older && (
+            <>
+              <div class="opacity-60 mb-1">较旧文章 →</div>
+              <Link href={`/blog/${older.slug}/`} underline={false}>{older.data.title}</Link>
+            </>
+          )}
+        </div>
+      </nav>
+    )}
   </Container>
 </PageLayout>

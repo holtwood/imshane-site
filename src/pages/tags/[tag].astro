@@ -1,0 +1,56 @@
+---
+import { type CollectionEntry, getCollection } from "astro:content";
+import PageLayout from "@layouts/PageLayout.astro";
+import Container from "@components/Container.astro";
+import Link from "@components/Link.astro";
+import { formatDateShort } from "@lib/utils";
+
+export async function getStaticPaths() {
+  const posts = (await getCollection("blog")).filter(post => !post.data.draft);
+  const tags = [...new Set(posts.flatMap(post => post.data.tags ?? []))];
+  return tags.map(tag => ({
+    params: { tag },
+    props: {
+      tag,
+      posts: posts
+        .filter(post => post.data.tags?.includes(tag))
+        .sort((a, b) =>
+          b.data.date.valueOf() - a.data.date.valueOf() ||
+          a.slug.localeCompare(b.slug)),
+    },
+  }));
+}
+type Props = {
+  tag: string;
+  posts: CollectionEntry<"blog">[];
+};
+
+const { tag, posts } = Astro.props;
+---
+
+<PageLayout title={`${tag}`} description={`标记为 ${tag} 的文章。`}>
+  <Container>
+    <div class="space-y-10">
+      <div class="animate space-y-2">
+        <div class="font-semibold text-black dark:text-white">
+          {tag}
+        </div>
+        <p class="text-sm opacity-75">
+          {posts.length} 篇文章 · <Link href="/tags/" underline={false}>全部标签</Link>
+        </p>
+      </div>
+      <ul class="animate flex flex-col gap-3">
+        {posts.map((post) => (
+          <li class="flex gap-4 items-baseline">
+            <time class="text-sm opacity-60 shrink-0 w-20">
+              {formatDateShort(post.data.date)}
+            </time>
+            <Link href={`/blog/${post.slug}/`} underline={false}>
+              {post.data.title}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </Container>
+</PageLayout>

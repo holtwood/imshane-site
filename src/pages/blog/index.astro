@@ -36,6 +36,11 @@ const years = Object.keys(posts).sort((a, b) => parseInt(b) - parseInt(a));
         <p class="text-sm opacity-75">
           Writing about software, systems and things I learn.
         </p>
+        <p class="text-sm">
+          <Link href="/tags/" underline={false}>
+            <span class="opacity-60">Tags →</span>
+          </Link>
+        </p>
       </div>
       <div class="space-y-8">
         {years.map(year => (

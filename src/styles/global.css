@@ -43,6 +43,25 @@ article {
   @apply prose-headings:text-black prose-headings:dark:text-white;
 }
 
+.toc ol {
+  counter-reset: toc;
+  list-style: none;
+  padding-left: 0;
+}
+
+.toc li.toc-h2 {
+  counter-increment: toc;
+}
+
+.toc li.toc-h2::before {
+  content: counter(toc, decimal-leading-zero);
+  @apply opacity-40 mr-2 text-xs;
+}
+
+.toc li.toc-h3 {
+  @apply ml-8;
+}
+
 @layer utilities {
   article a {
     @apply font-sans text-current underline underline-offset-2;
