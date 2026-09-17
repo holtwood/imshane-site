@@ -1,0 +1,163 @@
+---
+import { getCollection } from "astro:content";
+import Container from "@components/Container.astro";
+import PageLayout from "@layouts/PageLayout.astro";
+import ArrowCard from "@components/ArrowCard.astro";
+import Link from "@components/Link.astro";
+import { dateRange, formatDateShort } from "@lib/utils";
+import { SITE, HOME, SOCIALS } from "@consts";
+
+const blog = (await getCollection("blog"))
+  .filter(post => !post.data.draft)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, SITE.NUM_POSTS_ON_HOMEPAGE);
+
+const projects = (await getCollection("projects"))
+  .filter(project => !project.data.draft)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, SITE.NUM_PROJECTS_ON_HOMEPAGE);
+
+const allwork = (await getCollection("work"))
+  .sort((a, b) => new Date(b.data.dateStart).valueOf() - new Date(a.data.dateStart).valueOf())
+  .slice(0, SITE.NUM_WORKS_ON_HOMEPAGE);
+---
+
+<PageLayout description={HOME.DESCRIPTION}>
+  <Container>
+    <h4 class="animate font-semibold text-black dark:text-white">
+      Hi, I'm Shane 👋
+    </h4>
+    <div class="space-y-16">
+      <section>
+        <article class="space-y-4">
+          <p class="animate">
+            Software Engineer focusing on C++, AI Infra and LLM Systems.
+          </p>
+          <p class="animate">
+            记录技术、项目，以及一些长期值得留下的东西。
+          </p>
+          <p class="animate flex flex-wrap gap-x-2">
+            {SOCIALS.map(s => (
+              <Link href={s.HREF} external aria-label={`Shane on ${s.NAME}`}>
+                {s.NAME}
+              </Link>
+            ))}
+            <span>·</span>
+            <Link href="/rss.xml" external aria-label="RSS feed">
+              RSS
+            </Link>
+            {SITE.EMAIL && (
+              <>
+                <span>·</span>
+                <Link href={`mailto:${SITE.EMAIL}`} aria-label="Email Shane">
+                  Email
+                </Link>
+              </>
+            )}
+          </p>
+        </article>
+      </section>
+
+      <section class="animate space-y-6">
+        <div class="flex flex-wrap gap-y-2 items-center justify-between">
+          <h5 class="font-semibold text-black dark:text-white">
+            Latest Writing
+          </h5>
+          <Link href="/blog">
+            View all →
+          </Link>
+        </div>
+        <ul class="flex flex-col gap-3">
+          {blog.map(post => (
+            <li class="flex gap-4 items-baseline">
+              <time class="text-sm opacity-60 shrink-0 w-20">
+                {formatDateShort(post.data.date)}
+              </time>
+              <Link href={`/blog/${post.slug}/`} underline={false}>
+                {post.data.title}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section class="animate space-y-6">
+        <div class="flex flex-wrap gap-y-2 items-center justify-between">
+          <h5 class="font-semibold text-black dark:text-white">
+            Selected Projects
+          </h5>
+          <Link href="/projects">
+            View all →
+          </Link>
+        </div>
+        <ul class="flex flex-col gap-4">
+          {projects.map(project => (
+            <li>
+              <ArrowCard entry={project} />
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section class="animate space-y-6">
+        <div class="flex flex-wrap gap-y-2 items-center justify-between">
+          <h5 class="font-semibold text-black dark:text-white">
+            Experience
+          </h5>
+          <Link href="/about">
+            More →
+          </Link>
+        </div>
+        <ul class="flex flex-col space-y-4">
+          {allwork.map(entry => (
+            <li>
+              <div class="text-sm opacity-75">
+                {dateRange(entry.data.dateStart, entry.data.dateEnd)}
+              </div>
+              <div class="font-semibold text-black dark:text-white">
+                {entry.data.company}
+              </div>
+              <div class="text-sm opacity-75">
+                {entry.data.role}
+              </div>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section class="animate space-y-4">
+        <h5 class="font-semibold text-black dark:text-white">
+          Connect
+        </h5>
+        <article>
+          <p>
+            欢迎通过以下方式联系我，交流技术或随便聊聊。
+          </p>
+        </article>
+        <ul class="flex flex-wrap gap-2">
+          {SOCIALS.map(s => (
+            <li class="flex gap-x-2 text-nowrap">
+              <Link href={s.HREF} external aria-label={`Shane on ${s.NAME}`}>
+                {s.NAME}
+              </Link>
+              {"/"}
+            </li>
+          ))}
+          <li class="flex gap-x-2 text-nowrap">
+            <Link href="/rss.xml" external aria-label="RSS feed">
+              RSS
+            </Link>
+            {SITE.EMAIL && "/"}
+          </li>
+          {SITE.EMAIL && (
+            <li class="line-clamp-1">
+              <Link href={`mailto:${SITE.EMAIL}`} aria-label="Email Shane">
+                {SITE.EMAIL}
+              </Link>
+            </li>
+          )}
+        </ul>
+      </section>
+    </div>
+  </Container>
+</PageLayout>
