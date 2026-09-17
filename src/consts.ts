@@ -2,8 +2,8 @@ import type { Site, Metadata, Socials } from "@types";
 
 export const SITE: Site = {
   NAME: "Shane.",
-  TITLE: "简说技术",
-  SEO_NAME: "简说技术 | Shane's Personal Site",
+  TITLE: "简说笔记",
+  SEO_NAME: "简说笔记 | Shane",
   EMAIL: "",
   NUM_POSTS_ON_HOMEPAGE: 4,
   NUM_WORKS_ON_HOMEPAGE: 3,
@@ -12,7 +12,7 @@ export const SITE: Site = {
 
 export const HOME: Metadata = {
   TITLE: "Home",
-  DESCRIPTION: "Shane 的个人技术网站：记录技术、项目，以及一些长期值得留下的东西。",
+  DESCRIPTION: "记录技术与项目，也记录一些长期值得留下的东西。",
 };
 
 export const BLOG: Metadata = {
