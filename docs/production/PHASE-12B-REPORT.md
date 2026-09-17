@@ -62,9 +62,29 @@ memos.imshane.site → mortis:5231(/api/v1,/o/r) + memos:5230      ← 不变
 sync/vault/newapi/linkding/radicale                              ← 不变
 ```
 
+## Adversarial Re-check（二次对抗复查）
+
+切换后对**生产环境**追加检查，未在首轮验证中覆盖的角度：
+
+| 检查 | 结果 |
+|---|---|
+| apex 残留 Memos 反代？ | ✓ 无——`imshane.site/api/v1/*`、`/o/r/*` 现在返回**静态 404**；memos 子域对应路径仍正常路由。隐藏代理零残留 |
+| 无尾斜杠路径 | `/blog` → 308 `/blog/`；`/projects/cuflash` → 308 `.../`（file_server canonical，正确）|
+| Server 头 | `header -Server` 生效，响应无 Server 字段 |
+| 压缩 | `/_astro/*.css` gzip 正常 + ETag |
+| live RSS | 40 items、`https://imshane.site/blog/...` 链接、`简说技术 — Blog`（初查 `grep -c` 误报 1 为单行 XML 行计数问题，已复核）|
+| 首页指纹 | `Latest Writing` / `Selected Projects` 存在，非 Memos |
+| `www` 双跳 | `http://www` →308→ `https://www` →301→ apex：Caddy 自动 HTTPS 决定的两跳，标准行为 |
+
+**复查发现的已知限制（P3，非 bug，功能冻结不修）**：
+
+- `/_astro/*` 哈希资产无 `Cache-Control: immutable`（仅 ETag）——重复访问缓存次优，未来 Caddyfile 迭代可补
+- 无 HSTS 头——与切换前一致（无回归），可选的后续加固项
+- 旧 `imshane.site/o/r/*` 公共附件链接在 apex 上 404——切换的固有行为变更，Memos 唯一入口为子域（用户已确认客户端迁移）
+
 ## Blockers
 
-P0=0，P1=0，P2=0，P3=0。
+P0=0，P1=0，P2=0，P3=0（3 条 P3 观察记录于上表，均为非阻断项）。
 
 ## Administrative Checkpoint
 
