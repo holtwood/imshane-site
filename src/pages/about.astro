@@ -4,10 +4,16 @@ import Container from "@components/Container.astro";
 import PageLayout from "@layouts/PageLayout.astro";
 import Link from "@components/Link.astro";
 import { dateRange } from "@lib/utils";
-import { SITE, ABOUT, SOCIALS } from "@consts";
+import { ABOUT, SOCIALS } from "@consts";
 
-const work = (await getCollection("work"))
-  .sort((a, b) => new Date(b.data.dateStart).valueOf() - new Date(a.data.dateStart).valueOf());
+const work = await Promise.all(
+  (await getCollection("work"))
+    .sort((a, b) => new Date(b.data.dateStart).valueOf() - new Date(a.data.dateStart).valueOf())
+    .map(async (item) => {
+      const { Content } = await item.render();
+      return { ...item, Content };
+    })
+);
 ---
 
 <PageLayout title={ABOUT.TITLE} description={ABOUT.DESCRIPTION}>
@@ -28,8 +34,12 @@ const work = (await getCollection("work"))
         </h5>
         <article class="space-y-4">
           <p>
-            软件工程师，目前关注 C++、AI Infra 与 LLM Systems 方向。
-            这个网站用来记录技术文章、个人项目，以及一些长期值得留下的东西。
+            软件工程师。写过医学算法软件，做过实时音视频后台，
+            现在在 BGI 做生信相关的高性能计算与平台开发。
+          </p>
+          <p>
+            这个网站是我的个人主页：技术文章、项目，
+            以及一些长期想留下来的记录。
           </p>
         </article>
       </section>
@@ -51,7 +61,7 @@ const work = (await getCollection("work"))
         <h5 class="font-semibold text-black dark:text-white">
           Experience
         </h5>
-        <ul class="flex flex-col space-y-4">
+        <ul class="flex flex-col space-y-6">
           {work.map(entry => (
             <li>
               <div class="text-sm opacity-75">
@@ -63,6 +73,9 @@ const work = (await getCollection("work"))
               <div class="text-sm opacity-75">
                 {entry.data.role}
               </div>
+              <article class="mt-2">
+                <entry.Content />
+              </article>
             </li>
           ))}
         </ul>
@@ -81,19 +94,11 @@ const work = (await getCollection("work"))
               {"/"}
             </li>
           ))}
-          <li class="flex gap-x-2 text-nowrap">
+          <li class="text-nowrap">
             <Link href="/rss.xml" external aria-label="RSS feed">
               RSS
             </Link>
-            {SITE.EMAIL && "/"}
           </li>
-          {SITE.EMAIL && (
-            <li class="line-clamp-1">
-              <Link href={`mailto:${SITE.EMAIL}`} aria-label="Email Shane">
-                {SITE.EMAIL}
-              </Link>
-            </li>
-          )}
         </ul>
       </section>
     </div>

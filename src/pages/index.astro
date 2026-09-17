@@ -31,7 +31,7 @@ const allwork = (await getCollection("work"))
       <section>
         <article class="space-y-4">
           <p class="animate">
-            Software Engineer focusing on C++, AI Infra and LLM Systems.
+            Software Engineer interested in C++, AI Infra and LLM Systems.
           </p>
           <p class="animate">
             记录技术、项目，以及一些长期值得留下的东西。
@@ -120,6 +120,11 @@ const allwork = (await getCollection("work"))
               <div class="text-sm opacity-75">
                 {entry.data.role}
               </div>
+              {entry.data.summary && (
+                <div class="text-sm opacity-60">
+                  {entry.data.summary}
+                </div>
+              )}
             </li>
           ))}
         </ul>
