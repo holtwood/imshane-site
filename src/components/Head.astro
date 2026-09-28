@@ -56,6 +56,18 @@ const { title, description, image = "/og-default.png" } = Astro.props;
 <!-- RSS Link -->
 <link rel="alternate" type="application/rss+xml" title={SITE.NAME} href={new URL("rss.xml", Astro.site)} />
 
+<!-- GoatCounter（自托管 stats.imshane.site）：no_onload 关掉自动计数，astro:page-load 在首载与每次 ClientRouter 换页后各 count 一次 -->
+<script is:inline>
+  window.goatcounter = { no_onload: true };
+  document.addEventListener("astro:page-load", () => {
+    window.goatcounter?.count?.();
+  });
+</script>
+<script
+  data-goatcounter="https://stats.imshane.site/count"
+  async
+  src="https://stats.imshane.site/count.js"></script>
+
 <script>
   import type { TransitionBeforeSwapEvent } from "astro:transitions/client";
   document.addEventListener("astro:before-swap", (e) =>
