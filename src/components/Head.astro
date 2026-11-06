@@ -8,11 +8,15 @@ interface Props {
   title: string;
   description: string;
   image?: string;
+  type?: "website" | "article";
+  publishedTime?: string;
+  modifiedTime?: string;
+  noindex?: boolean;
 }
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
-const { title, description, image = "/og-default.png" } = Astro.props;
+const { title, description, image = "/og-default.png", type = "website", publishedTime, modifiedTime, noindex } = Astro.props;
 ---
 
 <!-- Global Metadata -->
@@ -20,7 +24,8 @@ const { title, description, image = "/og-default.png" } = Astro.props;
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <link rel="icon" type="image/svg+xml" href="/favicon-dark.svg" media="(prefers-color-scheme: dark)">
 <link rel="icon" type="image/svg+xml" href="/favicon-light.svg" media="(prefers-color-scheme: light)">
-<link rel="icon" type="image/x-icon" href="/favicon-light.svg">
+<meta name="theme-color" content="#f5f5f4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1c1917" media="(prefers-color-scheme: dark)">
 <meta name="generator" content={Astro.generator} />
 
 <!-- Self-hosted fonts (unicode-range sliced): CodeNewRoman + Resource Han Rounded CN -->
@@ -34,27 +39,37 @@ const { title, description, image = "/og-default.png" } = Astro.props;
 <title>{title}</title>
 <meta name="title" content={title} />
 <meta name="description" content={description} />
+<meta name="author" content="Shane" />
+{noindex && <meta name="robots" content="noindex" />}
 
 <!-- Open Graph / Facebook -->
-<meta property="og:type" content="website" />
-<meta property="og:url" content={Astro.url} />
+<meta property="og:type" content={type} />
+<meta property="og:url" content={canonicalURL} />
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
 <meta property="og:image" content={new URL(image, Astro.url)} />
-<meta property="og:site_name" content={SITE.SEO_NAME} />
+<meta property="og:image:alt" content={title} />
+<meta property="og:site_name" content={SITE.TITLE} />
 <meta property="og:locale" content="zh_CN" />
 
 <!-- Twitter -->
-<meta property="twitter:card" content="summary_large_image" />
-<meta property="twitter:url" content={Astro.url} />
-<meta property="twitter:title" content={title} />
-<meta property="twitter:description" content={description} />
-<meta property="twitter:image" content={new URL(image, Astro.url)} />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:url" content={canonicalURL} />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={new URL(image, Astro.url)} />
+<meta name="twitter:image:alt" content={title} />
+{type === "article" && publishedTime && (
+  <meta property="article:published_time" content={publishedTime} />
+)}
+{type === "article" && modifiedTime && (
+  <meta property="article:modified_time" content={modifiedTime} />
+)}
 
 <ClientRouter  />
 
 <!-- RSS Link -->
-<link rel="alternate" type="application/rss+xml" title={SITE.NAME} href={new URL("rss.xml", Astro.site)} />
+<link rel="alternate" type="application/rss+xml" title={SITE.TITLE} href={new URL("rss.xml", Astro.site)} />
 
 <!-- GoatCounter（自托管 stats.imshane.site）：no_onload 关掉自动计数，astro:page-load 在首载与每次 ClientRouter 换页后各 count 一次 -->
 <script is:inline>
@@ -64,6 +79,7 @@ const { title, description, image = "/og-default.png" } = Astro.props;
   });
 </script>
 <script
+  is:inline
   data-goatcounter="https://stats.imshane.site/count"
   async
   src="https://stats.imshane.site/count.js"></script>
@@ -81,47 +97,72 @@ const { title, description, image = "/og-default.png" } = Astro.props;
 
 <script is:inline>
   function init() {
-    preloadTheme();
+    document.documentElement.classList.add("js");
+    try {
+      preloadTheme();
+    } catch {
+      // Storage can be unavailable in private/blocked contexts; never block content.
+    }
+    syncThemeButtons();
     onScroll();
     animate();
 
     const backToTop = document.getElementById("back-to-top");
     backToTop?.addEventListener("click", (event) => scrollToTop(event));
 
-    const backToPrev = document.getElementById("back-to-prev");
-    backToPrev?.addEventListener("click", () => window.history.back());
+    for (const name of ["light", "dark", "system"]) {
+      document.getElementById(`${name}-theme-button`)?.addEventListener("click", () => setTheme(name));
+    }
+  }
 
-    const lightThemeButton = document.getElementById("light-theme-button");
-    lightThemeButton?.addEventListener("click", () => {
-      localStorage.setItem("theme", "light");
-      toggleTheme(false);
-    });
-
-    const darkThemeButton = document.getElementById("dark-theme-button");
-    darkThemeButton?.addEventListener("click", () => {
-      localStorage.setItem("theme", "dark");
-      toggleTheme(true);
-    });
-
-    const systemThemeButton = document.getElementById("system-theme-button");
-    systemThemeButton?.addEventListener("click", () => {
-      localStorage.setItem("theme", "system");
-      toggleTheme(window.matchMedia("(prefers-color-scheme: dark)").matches);
-    });
-
-    window.matchMedia("(prefers-color-scheme: dark)")
-      .addEventListener("change", event => {
-        if (localStorage.theme === "system" || !localStorage.theme) {
-          toggleTheme(event.matches);
-        }
+  window.matchMedia("(prefers-color-scheme: dark)")
+    .addEventListener("change", event => {
+      if (getStoredTheme() === "system") {
+        toggleTheme(event.matches);
+        syncThemeButtons();
       }
-    );
+    });
 
-    document.addEventListener("scroll", onScroll);
+  document.addEventListener("scroll", onScroll);
+
+  function getStoredTheme() {
+    try {
+      const theme = localStorage.theme;
+      return theme === "light" || theme === "dark" ? theme : "system";
+    } catch {
+      return "system";
+    }
+  }
+
+  function syncThemeButtons() {
+    const theme = getStoredTheme();
+    document.querySelectorAll("[data-theme-button]").forEach((button) => {
+      button.setAttribute("aria-pressed", String(button.getAttribute("data-theme-button") === theme));
+    });
+  }
+
+  function setTheme(theme) {
+    try {
+      localStorage.setItem("theme", theme);
+    } catch {
+      // Theme still applies for this page even if persistence is unavailable.
+    }
+    if (theme === "light") {
+      toggleTheme(false);
+    } else if (theme === "dark") {
+      toggleTheme(true);
+    } else {
+      toggleTheme(window.matchMedia("(prefers-color-scheme: dark)").matches);
+    }
+    syncThemeButtons();
   }
 
   function animate() {
     const animateElements = document.querySelectorAll(".animate");
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      animateElements.forEach((element) => element.classList.add("show"));
+      return;
+    }
 
     animateElements.forEach((element, index) => {
       setTimeout(() => {
@@ -142,11 +183,11 @@ const { title, description, image = "/og-default.png" } = Astro.props;
     event.preventDefault();
     window.scrollTo({
       top: 0,
-      behavior: "smooth"
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"
     });
   }
 
-function toggleTheme(dark) {
+  function toggleTheme(dark) {
     const css = document.createElement("style");
 
     css.appendChild(
@@ -170,13 +211,12 @@ function toggleTheme(dark) {
       document.documentElement.classList.remove("dark");
     }
 
-  window.getComputedStyle(css).opacity;
+    window.getComputedStyle(css).opacity;
     document.head.removeChild(css);
   }
 
   function preloadTheme() {
-    const userTheme = localStorage.theme;
-
+    const userTheme = getStoredTheme();
     if (userTheme === "light" || userTheme === "dark") {
       toggleTheme(userTheme === "dark");
     } else {
@@ -186,5 +226,10 @@ function toggleTheme(dark) {
 
   document.addEventListener("DOMContentLoaded", () => init());
   document.addEventListener("astro:after-swap", () => init());
-  preloadTheme();
+  document.documentElement.classList.add("js");
+  try {
+    preloadTheme();
+  } catch {
+    // Keep the page visible even if theme initialization fails.
+  }
 </script>

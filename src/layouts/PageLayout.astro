@@ -7,20 +7,27 @@ import { SITE } from "@consts";
 type Props = {
   title?: string;
   description: string;
+  type?: "website" | "article";
+  publishedTime?: string;
+  modifiedTime?: string;
+  noindex?: boolean;
 };
 
-const { title, description } = Astro.props;
+const { title, description, type, publishedTime, modifiedTime, noindex } = Astro.props;
 const pageTitle = title ? `${title} | ${SITE.TITLE}` : SITE.SEO_NAME;
 ---
 
 <!doctype html>
 <html lang="zh-CN">
   <head>
-    <Head title={pageTitle} description={description} />
+    <Head title={pageTitle} description={description} type={type} publishedTime={publishedTime} modifiedTime={modifiedTime} noindex={noindex} />
   </head>
   <body>
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:rounded focus:bg-stone-100 focus:px-3 focus:py-2 focus:text-black dark:focus:bg-stone-900 dark:focus:text-white">
+      Skip to content
+    </a>
     <Header />
-    <main>
+    <main id="main-content" tabindex="-1">
       <slot />
     </main>
     <Footer />

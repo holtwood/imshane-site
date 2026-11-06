@@ -8,16 +8,16 @@ categories:
   - problems
 legacyUrl: /post/2016/07/03/how-to-use-hugo/
 ---
-# hugo安装
+## hugo安装
 windows环境下，下载二进制文件安装，配置环境变量。
 开源发布地址：https://github.com/gohugoio/hugo/releases
 
-# 检查环境
+## 检查环境
 ```
 >>> hugo version
 Hugo Static Site Generator v0.68.3-157669A0 linux/amd64 BuildDate: 2020-06-07T12:05:34Z
 ```
-# 创建站点
+## 创建站点
 hugo 安装成功后，使用`hugo new site` 命令创建博客：
 
 ```
@@ -37,7 +37,7 @@ hugo new site myblog
 └── themes              # 博客主题
 ```
 
-# 新建文章
+## 新建文章
 在content目录新建about.md页面
 
 ```
@@ -48,7 +48,7 @@ hugo new about.md
 $ hugo new post/first.md
 ```
 
-# 配置主题
+## 配置主题
 https://themes.gohugo.io/
 把主题文件放置到`themes`目录。
 ```
@@ -77,7 +77,7 @@ git clone https://github.com/alanorth/hugo-theme-bootstrap4-blog.git themes/hugo
     └── webpack.config.js
 ```
 
-# 本地启动服务
+## 本地启动服务
 `hugo server` 启动Hugo服务。可以看到服务默认会在占用1313 端口，在浏览器中访问http://localhost:1313/ 地址。
 ```
 PS D:\04_Blog\1_Blog\ShiJiashuai_Blog> hugo server
@@ -106,7 +106,7 @@ Press Ctrl+C to stop
 在myblog 目录下，运行`hugo`命令：
 执行成功后，会生成一个public 目录，这个目录中的内容，就是我们博客系统的所有内容，我们需要将这些内容存放在Git 仓库中。
 
-# 编写博客文章
+## 编写博客文章
 章放在`myblog/content/posts`目录下面。
 ```
 ---
@@ -142,7 +142,7 @@ next: /tutorials/github-pages-blog      # 下一篇博客地址
 prev: /tutorials/automated-deployments  # 上一篇博客地址
 ---
 ```
-# 本地git管理
+## 本地git管理
 ```
 # 初始化仓库
 git init
@@ -160,7 +160,7 @@ git remote add origin https://github.com/xxx/xxx.github.io.git
 git push origin master
 ```
 
-# GitPages部署
+## GitPages部署
 假设你需要部署在 GitHub Pages 上，首先在GitHub上创建一个Repository，命名为：自己在github上面的用户名。
 然后，当你把自己的blog代码仓库推送到github上之后，github就会自动为你重新部署静态网站。稍等片刻访问http://usename.github.io/就可以看到自己创建的页面了。
 ```

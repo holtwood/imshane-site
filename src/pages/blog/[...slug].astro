@@ -36,34 +36,34 @@ const tocHeadings = headings.filter(h => h.depth >= 2 && h.depth <= 3);
 const showToc = tocHeadings.length >= 4 || readingMinutes(post.body) >= 8;
 ---
 
-<PageLayout title={title} description={post.data.description}>
+<PageLayout title={title} description={post.data.description} type="article" publishedTime={date.toISOString()} modifiedTime={updatedDate?.toISOString()}>
   <Container>
     <div class="animate">
-      <BackToPrev href="/blog">
+      <BackToPrev href="/blog/">
         Back to blog
       </BackToPrev>
     </div>
     <div class="space-y-1 my-10">
       <div class="animate flex flex-wrap items-center gap-x-1.5 text-sm">
         <FormattedDate date={date} />
-        &bull;
+        <span aria-hidden="true">&bull;</span>
         <div>
           {readingTime(post.body)}
         </div>
         {updatedDate && (
           <>
-            &bull;
-            <div class="opacity-75">
+            <span aria-hidden="true">&bull;</span>
+            <div class="text-black/60 dark:text-white/70">
               更新于 <FormattedDate date={updatedDate} />
             </div>
           </>
         )}
       </div>
-      <div class="animate text-2xl font-semibold text-black dark:text-white">
+      <h1 class="animate text-2xl font-semibold text-black dark:text-white">
         {title}
-      </div>
+      </h1>
       {(categories.length > 0 || tags.length > 0) && (
-        <div class="animate flex flex-wrap gap-x-4 text-sm opacity-60">
+        <div class="animate flex flex-wrap gap-x-4 text-sm text-black/60 dark:text-white/70">
           {categories.length > 0 && (
             <span>分类：{categories.join(" · ")}</span>
           )}
@@ -77,8 +77,8 @@ const showToc = tocHeadings.length >= 4 || readingMinutes(post.body) >= 8;
     </div>
     {showToc && (
       <details class="animate toc my-8 text-sm border border-black/10 dark:border-white/15 rounded px-4 py-3">
-        <summary class="cursor-pointer select-none font-medium opacity-75">
-          目录<span class="opacity-60">（{tocHeadings.length}）</span>
+        <summary class="cursor-pointer select-none font-medium text-black/60 dark:text-white/70">
+          目录<span class="text-black/60 dark:text-white/70">（{tocHeadings.length}）</span>
         </summary>
         <ol class="mt-3 space-y-1.5">
           {tocHeadings.map(h => (
@@ -97,7 +97,7 @@ const showToc = tocHeadings.length >= 4 || readingMinutes(post.body) >= 8;
         <div class="min-w-0">
           {newer && (
             <>
-              <div class="opacity-60 mb-1">← 较新文章</div>
+              <div class="text-black/60 dark:text-white/70 mb-1">← 较新文章</div>
               <Link href={`/blog/${newer.slug}/`} underline={false}>{newer.data.title}</Link>
             </>
           )}
@@ -105,7 +105,7 @@ const showToc = tocHeadings.length >= 4 || readingMinutes(post.body) >= 8;
         <div class="min-w-0 text-right">
           {older && (
             <>
-              <div class="opacity-60 mb-1">较旧文章 →</div>
+              <div class="text-black/60 dark:text-white/70 mb-1">较旧文章 →</div>
               <Link href={`/blog/${older.slug}/`} underline={false}>{older.data.title}</Link>
             </>
           )}

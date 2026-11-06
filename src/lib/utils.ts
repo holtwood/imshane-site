@@ -9,19 +9,20 @@ export function formatDate(date: Date) {
   return Intl.DateTimeFormat("zh-CN", {
     month: "long",
     day: "numeric",
-    year: "numeric"
+    year: "numeric",
+    timeZone: "UTC"
   }).format(date);
 }
 
 export function formatDateShort(date: Date) {
-  return `${date.getMonth() + 1}月${date.getDate()}日`;
+  return `${date.getUTCMonth() + 1}月${date.getUTCDate()}日`;
 }
 
 export function readingMinutes(html: string) {
   const textOnly = html.replace(/<[^>]+>/g, "");
-  const cjkChars = (textOnly.match(/[一-鿿　-鿽＀-￯]/g) || []).length;
+  const cjkChars = (textOnly.match(/\p{Script=Han}/gu) || []).length;
   const latinWords = textOnly
-    .replace(/[一-鿿　-鿽＀-￯]/g, " ")
+    .replace(/\p{Script=Han}/gu, " ")
     .split(/\s+/)
     .filter(Boolean).length;
   return Math.max(1, Math.round(cjkChars / 400 + latinWords / 200));

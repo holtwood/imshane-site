@@ -26,9 +26,8 @@ await new Promise(r => server.listen(0, r));
 const port = server.address().port;
 const base = `http://127.0.0.1:${port}`;
 
-const pages = ["/", "/blog/", "/blog/hello-world-migrated-none", "/tags/", "/tags/go/", "/projects/", "/projects/cuflash/", "/about/", "/404"];
-// pick real posts: a short one + a long one
-pages[2] = "/blog/my-first-blog/";
+const pages = ["/", "/blog/", "/blog/my-first-blog/", "/tags/", "/tags/go/", "/projects/", "/projects/cuflash/", "/about/", "/404"];
+// a long post with code blocks and a TOC
 pages.push("/blog/knowledge-points-interviews/", "/blog/code-optimize-1-simd/");
 
 const browser = await chromium.launch();
@@ -38,14 +37,29 @@ for (const p of pages) {
   const page = await ctx.newPage();
   page.on("console", m => { if (m.type() === "error") { consoleErr++; console.log(`  console.error @${p}: ${m.text().slice(0, 120)}`); } });
   page.on("pageerror", e => { pageErr++; console.log(`  pageerror @${p}: ${e.message.slice(0, 120)}`); });
-  page.on("requestfailed", r => { reqFail++; console.log(`  reqfail @${p}: ${r.url().slice(0, 120)}`); });
+  page.on("requestfailed", r => { if (r.url().startsWith(base)) { reqFail++; console.log(`  reqfail @${p}: ${r.url().slice(0, 120)}`); } });
   page.on("response", r => { if (r.status() >= 400 && r.url().startsWith(base)) { reqFail++; console.log(`  http${r.status()} @${p}: ${r.url().slice(0, 120)}`); } });
   const resp = await page.goto(base + p, { waitUntil: "networkidle" });
   console.log(`${p}  ${resp.status()}`);
   await page.close();
 }
-// 404 route should return 404 status — Astro serves /404.html at that path
+// A missing route must return the real 404 status, not a 200 HTML page.
+const missingPage = await ctx.newPage();
+const missingResp = await missingPage.goto(base + "/definitely-not-found", { waitUntil: "networkidle" });
+if (missingResp.status() !== 404) {
+  console.log(`  expected 404, got ${missingResp.status()} for /definitely-not-found`);
+  process.exitCode = 1;
+}
+await missingPage.close();
+
+// The meta-refresh fallback must still point at the canonical new URL.
+const legacyResp = await ctx.request.get(base + "/post/2016/07/01/my-first-blog/");
+const legacyHtml = await legacyResp.text();
+if (legacyResp.status() !== 200 || !legacyHtml.includes('http-equiv="refresh"') || !legacyHtml.includes("/blog/my-first-blog/")) {
+  console.log(`  legacy redirect fallback failed: status=${legacyResp.status()}`);
+  process.exitCode = 1;
+}
 await browser.close();
 server.close();
 console.log(`\nconsole.error=${consoleErr} pageerror=${pageErr} failedLocalReq=${reqFail}`);
-process.exit(consoleErr + pageErr + reqFail === 0 ? 0 : 1);
+process.exit((consoleErr + pageErr + reqFail === 0 && process.exitCode !== 1) ? 0 : 1);

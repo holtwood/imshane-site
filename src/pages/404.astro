@@ -4,12 +4,12 @@ import PageLayout from "@layouts/PageLayout.astro";
 import BackToPrev from "@components/BackToPrev.astro";
 ---
 
-<PageLayout title="404" description="Page not found.">
+<PageLayout title="404" description="Page not found." noindex>
   <Container>
     <div class="space-y-8">
-      <div class="animate font-semibold text-black dark:text-white text-2xl">
+      <h1 class="animate font-semibold text-black dark:text-white text-2xl">
         404
-      </div>
+      </h1>
       <article class="animate">
         <p>页面不存在或已被移动。</p>
       </article>

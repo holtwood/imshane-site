@@ -2,14 +2,24 @@
   "name": "imshane-site",
   "type": "module",
   "version": "1.0.0",
+  "packageManager": "pnpm@12.16.1",
+  "engines": {
+    "node": ">=20.11.0"
+  },
   "scripts": {
     "dev": "astro dev",
     "dev:network": "astro dev --host",
+    "prebuild": "node scripts/generate-legacy-redirects.mjs",
     "build": "astro check && astro build",
     "preview": "astro preview",
     "preview:network": "astro preview --host",
     "astro": "astro",
     "migrate": "node scripts/migrate.mjs",
+    "verify:migration": "node scripts/verify-migration.mjs",
+    "redirects": "node scripts/generate-legacy-redirects.mjs",
+    "qa": "node scripts/qa.mjs",
+    "smoke": "node scripts/smoke.mjs",
+    "shots": "node scripts/shots.mjs",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },

@@ -2,6 +2,9 @@
 import Container from "@components/Container.astro";
 import Link from "@components/Link.astro";
 import { SITE } from "@consts";
+
+const path = Astro.url.pathname;
+const isCurrent = (href: string) => path === href || path.startsWith(href);
 ---
 
 <header>
@@ -12,26 +15,30 @@ import { SITE } from "@consts";
           {SITE.NAME}
         </div>
       </Link>
-      <nav class="flex items-center gap-1">
-        <Link href="/blog">
+      <nav class="flex items-center gap-1" aria-label="Primary">
+        <Link href="/blog/" aria-current={isCurrent("/blog/") ? "page" : undefined}>
           blog
         </Link>
-        <span>
+        <span aria-hidden="true">
           {`/`}
         </span>
-        <Link href="/projects">
+        <Link href="/projects/" aria-current={isCurrent("/projects/") ? "page" : undefined}>
           projects
         </Link>
-        <span>
+        <span aria-hidden="true">
           {`/`}
         </span>
-        <Link href="/about">
+        <Link href="/about/" aria-current={isCurrent("/about/") ? "page" : undefined}>
           about
         </Link>
         <span class="ml-2 flex items-center">
           <button
             id="light-theme-button"
+            type="button"
+            title="Light theme"
             aria-label="Light theme"
+            aria-pressed="false"
+            data-theme-button="light"
             class="group size-8 flex items-center justify-center rounded-full"
           >
             <svg
@@ -59,7 +66,11 @@ import { SITE } from "@consts";
           </button>
           <button
             id="dark-theme-button"
+            type="button"
+            title="Dark theme"
             aria-label="Dark theme"
+            aria-pressed="false"
+            data-theme-button="dark"
             class="group size-8 flex items-center justify-center rounded-full"
           >
             <svg
@@ -79,7 +90,11 @@ import { SITE } from "@consts";
           </button>
           <button
             id="system-theme-button"
+            type="button"
+            title="System theme"
             aria-label="System theme"
+            aria-pressed="false"
+            data-theme-button="system"
             class="group size-8 flex items-center justify-center rounded-full"
           >
             <svg

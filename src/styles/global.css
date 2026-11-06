@@ -4,6 +4,7 @@
 
 html {
   overflow-y: scroll;
+  scroll-padding-top: 6rem;
   color-scheme: light;
 }
 
@@ -20,7 +21,7 @@ body {
   @apply font-sans antialiased;
   @apply flex flex-col;
   @apply bg-stone-100 dark:bg-stone-900;
-  @apply text-black/50 dark:text-white/75;
+  @apply text-black/70 dark:text-white/80;
 }
 
 header {
@@ -41,6 +42,10 @@ article {
   @apply max-w-full prose dark:prose-invert prose-img:mx-auto prose-img:my-auto;
   @apply prose-headings:font-semibold;
   @apply prose-headings:text-black prose-headings:dark:text-white;
+}
+
+article :is(h2, h3, h4) {
+  scroll-margin-top: 6rem;
 }
 
 .toc ol {
@@ -75,12 +80,25 @@ article {
 }
 
 .animate {
-  @apply opacity-0 translate-y-3;
   @apply transition-all duration-700 ease-out;
 }
 
-.animate.show {
+/* Only hide content when JS is known to be running; no-JS users still see it. */
+.js .animate {
+  @apply opacity-0 translate-y-3;
+}
+
+.js .animate.show {
   @apply opacity-100 translate-y-0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate {
+    transition: none;
+  }
+  .js .animate {
+    @apply opacity-100 translate-y-0;
+  }
 }
 
 html #back-to-top {

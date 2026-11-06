@@ -1,5 +1,7 @@
 # Phase 8 — Final Local QA Report
 
+> 本文件是 Phase 8 的历史快照。后续新增了自托管 GoatCounter，并修复了 heading 语义；当前状态请以 `pnpm qa` / `pnpm smoke` 的输出为准。
+
 基准：Phase 7B commit `5070bd4` 之后的 HEAD（修复后重新验证）。
 
 结论：**PASS**（P0=0, P1=0）

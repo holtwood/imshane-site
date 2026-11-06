@@ -23,9 +23,9 @@ const allwork = (await getCollection("work"))
 
 <PageLayout description={HOME.DESCRIPTION}>
   <Container>
-    <h4 class="animate font-semibold text-black dark:text-white">
+    <h1 class="animate font-semibold text-black dark:text-white">
       Hi, I'm Shane 👋
-    </h4>
+    </h1>
     <div class="space-y-16">
       <section>
         <article class="space-y-4">
@@ -41,13 +41,13 @@ const allwork = (await getCollection("work"))
                 {s.NAME}
               </Link>
             ))}
-            <span>·</span>
+            <span aria-hidden="true">·</span>
             <Link href="/rss.xml" external aria-label="RSS feed">
               RSS
             </Link>
             {SITE.EMAIL && (
               <>
-                <span>·</span>
+                <span aria-hidden="true">·</span>
                 <Link href={`mailto:${SITE.EMAIL}`} aria-label="Email Shane">
                   Email
                 </Link>
@@ -59,17 +59,17 @@ const allwork = (await getCollection("work"))
 
       <section class="animate space-y-6">
         <div class="flex flex-wrap gap-y-2 items-center justify-between">
-          <h5 class="font-semibold text-black dark:text-white">
+          <h2 class="font-semibold text-black dark:text-white">
             Recent Writing
-          </h5>
-          <Link href="/blog">
+          </h2>
+          <Link href="/blog/">
             View all →
           </Link>
         </div>
         <ul class="flex flex-col gap-3">
           {blog.map(post => (
             <li class="flex gap-4 items-baseline">
-              <time class="text-sm opacity-60 shrink-0 w-20">
+              <time class="text-sm text-black/60 dark:text-white/70 shrink-0 w-20">
                 {formatDateShort(post.data.date)}
               </time>
               <Link href={`/blog/${post.slug}/`} underline={false}>
@@ -82,10 +82,10 @@ const allwork = (await getCollection("work"))
 
       <section class="animate space-y-6">
         <div class="flex flex-wrap gap-y-2 items-center justify-between">
-          <h5 class="font-semibold text-black dark:text-white">
+          <h2 class="font-semibold text-black dark:text-white">
             Selected Projects
-          </h5>
-          <Link href="/projects">
+          </h2>
+          <Link href="/projects/">
             View all →
           </Link>
         </div>
@@ -95,11 +95,11 @@ const allwork = (await getCollection("work"))
               <Link href={`/projects/${project.slug}/`} underline={false}>
                 <span class="font-semibold text-black dark:text-white">{project.data.title}</span>
               </Link>
-              <p class="text-sm opacity-75 line-clamp-2">
+              <p class="text-sm text-black/60 dark:text-white/70 line-clamp-2">
                 {project.data.description}
               </p>
               {project.data.tags.length > 0 && (
-                <p class="text-sm opacity-50">
+                <p class="text-sm text-black/60 dark:text-white/70">
                   {project.data.tags.slice(0, 4).join(" · ")}
                 </p>
               )}
@@ -110,27 +110,27 @@ const allwork = (await getCollection("work"))
 
       <section class="animate space-y-6">
         <div class="flex flex-wrap gap-y-2 items-center justify-between">
-          <h5 class="font-semibold text-black dark:text-white">
+          <h2 class="font-semibold text-black dark:text-white">
             Experience
-          </h5>
-          <Link href="/about">
+          </h2>
+          <Link href="/about/">
             More →
           </Link>
         </div>
         <ul class="flex flex-col space-y-4">
           {allwork.map(entry => (
             <li>
-              <div class="text-sm opacity-75">
+              <div class="text-sm text-black/60 dark:text-white/70">
                 {yearRange(entry.data.startYear, entry.data.endYear)}
               </div>
               <div class="font-semibold text-black dark:text-white">
                 {entry.data.company}
               </div>
-              <div class="text-sm opacity-75">
+              <div class="text-sm text-black/60 dark:text-white/70">
                 {entry.data.role}
               </div>
               {entry.data.summary && (
-                <div class="text-sm opacity-60">
+                <div class="text-sm text-black/60 dark:text-white/70">
                   {entry.data.summary}
                 </div>
               )}
@@ -140,9 +140,9 @@ const allwork = (await getCollection("work"))
       </section>
 
       <section class="animate space-y-4">
-        <h5 class="font-semibold text-black dark:text-white">
+        <h2 class="font-semibold text-black dark:text-white">
           Connect
-        </h5>
+        </h2>
         <article>
           <p>
             欢迎通过以下方式联系我，交流技术或随便聊聊。
@@ -154,14 +154,14 @@ const allwork = (await getCollection("work"))
               <Link href={s.HREF} external aria-label={`Shane on ${s.NAME}`}>
                 {s.NAME}
               </Link>
-              {"/"}
+              <span aria-hidden="true">/</span>
             </li>
           ))}
           <li class="flex gap-x-2 text-nowrap">
             <Link href="/rss.xml" external aria-label="RSS feed">
               RSS
             </Link>
-            {SITE.EMAIL && "/"}
+            {SITE.EMAIL && <span aria-hidden="true">/</span>}
           </li>
           {SITE.EMAIL && (
             <li class="line-clamp-1">

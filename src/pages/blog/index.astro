@@ -15,7 +15,7 @@ type Acc = {
 }
 
 const posts = data.reduce((acc: Acc, post) => {
-    const year = post.data.date.getFullYear().toString();
+    const year = post.data.date.getUTCFullYear().toString();
     if (!acc[year]) {
       acc[year] = [];
     }
@@ -30,30 +30,30 @@ const years = Object.keys(posts).sort((a, b) => parseInt(b) - parseInt(a));
   <Container>
     <div class="space-y-10">
       <div class="animate space-y-2">
-        <div class="font-semibold text-black dark:text-white">
+        <h1 class="font-semibold text-black dark:text-white">
           Blog
-        </div>
-        <p class="text-sm opacity-75">
+        </h1>
+        <p class="text-sm text-black/60 dark:text-white/70">
           Writing about software, systems and things I learn.
         </p>
         <p class="text-sm">
           <Link href="/tags/" underline={false}>
-            <span class="opacity-60">Tags →</span>
+            <span class="text-black/60 dark:text-white/70">Tags →</span>
           </Link>
         </p>
       </div>
       <div class="space-y-8">
         {years.map(year => (
           <section class="animate space-y-4">
-            <div class="font-semibold text-black dark:text-white">
+            <h2 class="font-semibold text-black dark:text-white">
               {year}
-            </div>
+            </h2>
             <div>
               <ul class="flex flex-col gap-3">
                 {
                   posts[year].map((post) => (
                     <li class="flex gap-4 items-baseline">
-                      <time class="text-sm opacity-60 shrink-0 w-20">
+                      <time class="text-sm text-black/60 dark:text-white/70 shrink-0 w-20">
                         {formatDateShort(post.data.date)}
                       </time>
                       <Link href={`/blog/${post.slug}/`} underline={false}>

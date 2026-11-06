@@ -34,8 +34,8 @@ export function normalizeSlug(slug) {
 
 // 旧 URL 规则：/post/:year/:month/:day/:slug/
 export function legacyPostUrl(date, slug) {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
+  const y = date.getUTCFullYear();
+  const m = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const d = String(date.getUTCDate()).padStart(2, "0");
   return `/post/${y}/${m}/${d}/${slug}/`;
 }

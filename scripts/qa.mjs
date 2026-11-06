@@ -25,8 +25,23 @@ const htmlFiles = [];
 const routes = htmlFiles.map(f => "/" + path.relative(DIST, f).replace(/index\.html$/, "").replace(/\.html$/, ""));
 
 // ---------- 2. Route inventory ----------
-const blogDirs = fs.readdirSync(SRCBLOG).filter(d => fs.existsSync(path.join(SRCBLOG, d, "index.md")));
-const projDirs = fs.readdirSync(SRCPROJ).filter(d => fs.existsSync(path.join(SRCPROJ, d, "index.md")));
+const blogSources = fs.readdirSync(SRCBLOG)
+  .filter(d => fs.existsSync(path.join(SRCBLOG, d, "index.md")))
+  .map(slug => ({
+    slug,
+    data: matter(fs.readFileSync(path.join(SRCBLOG, slug, "index.md"), "utf8")).data,
+  }));
+const blogDirs = blogSources.filter(post => !post.data.draft).map(post => post.slug);
+const draftDirs = blogSources.filter(post => post.data.draft).map(post => post.slug);
+const projSources = fs.readdirSync(SRCPROJ)
+  .filter(d => fs.existsSync(path.join(SRCPROJ, d, "index.md")))
+  .map(slug => ({
+    slug,
+    data: matter(fs.readFileSync(path.join(SRCPROJ, slug, "index.md"), "utf8")).data,
+  }))
+  .filter(post => !post.data.draft)
+  .sort((a, b) => (a.data.order ?? 99) - (b.data.order ?? 99) || a.slug.localeCompare(b.slug));
+const projDirs = projSources.map(post => post.slug);
 const tagPages = fs.existsSync(path.join(DIST, "tags"))
   ? fs.readdirSync(path.join(DIST, "tags")).filter(d => fs.existsSync(path.join(DIST, "tags", d, "index.html"))) : [];
 const blogPages = fs.existsSync(path.join(DIST, "blog"))
@@ -39,6 +54,54 @@ info.push(`blog src/dst: ${blogDirs.length}/${blogPages.length}`);
 info.push(`projects src/dst: ${projDirs.length}/${projPages.length}`);
 info.push(`tag pages: ${tagPages.length}`);
 
+// ---------- 2b. Legacy URL redirects ----------
+const legacyLines = fs.readFileSync(path.join(ROOT, "old-url-map.csv"), "utf8")
+  .trim().split(/\r?\n/);
+if (legacyLines[0] !== "old_url,new_url,title") {
+  P("P1", `old-url-map.csv header is "${legacyLines[0]}"`);
+}
+const legacyRows = legacyLines.slice(1)
+  .map(line => line.match(/^([^,]+),([^,]+),/))
+  .filter(Boolean)
+  .map(m => ({ from: m[1], to: m[2] }));
+let legacyOk = 0;
+for (const { from, to } of legacyRows) {
+  const f = path.join(DIST, from.replace(/^\//, ""), "index.html");
+  if (!fs.existsSync(f)) { P("P1", `legacy redirect missing: ${from}`); continue; }
+  const html = fs.readFileSync(f, "utf8");
+  if (!html.includes(to) || !html.includes('name="robots" content="noindex"')) {
+    P("P2", `legacy redirect content mismatch: ${from} -> ${to}`);
+  } else {
+    legacyOk++;
+  }
+}
+info.push(`legacy redirects: ${legacyOk}/${legacyRows.length}`);
+
+// Generated redirect artifacts must stay in sync with the CSV.
+const expectedNetlify = new Set(legacyRows.map(({ from, to }) => `${from} ${to} 301`));
+const netlifyPath = path.join(ROOT, "public/_redirects");
+if (!fs.existsSync(netlifyPath)) {
+  P("P1", "missing public/_redirects (run pnpm redirects)");
+} else {
+  const actualNetlify = new Set(fs.readFileSync(netlifyPath, "utf8")
+    .split(/\r?\n/).map(line => line.trim())
+    .filter(line => line && !line.startsWith("#")));
+  for (const line of expectedNetlify) if (!actualNetlify.has(line)) P("P1", `_redirects missing: ${line}`);
+  for (const line of actualNetlify) if (!expectedNetlify.has(line)) P("P1", `_redirects stale: ${line}`);
+}
+
+const expectedCaddy = new Set(legacyRows.map(({ from, to }) => `redir ${from} ${to} permanent`));
+const caddyPath = path.join(ROOT, "deploy/legacy-redirects.caddy");
+if (!fs.existsSync(caddyPath)) {
+  P("P1", "missing deploy/legacy-redirects.caddy (run pnpm redirects)");
+} else {
+  const actualCaddy = new Set(fs.readFileSync(caddyPath, "utf8")
+    .split(/\r?\n/).map(line => line.trim())
+    .filter(line => line && !line.startsWith("#")));
+  for (const line of expectedCaddy) if (!actualCaddy.has(line)) P("P1", `Caddy redirects missing: ${line}`);
+  for (const line of actualCaddy) if (!expectedCaddy.has(line)) P("P1", `Caddy redirects stale: ${line}`);
+}
+
 const must = ["/", "/blog/", "/tags/", "/projects/", "/about/", "/404"];
 for (const m of must) if (!routes.includes(m)) P("P1", `missing route ${m}`);
 for (const r of routes) {
@@ -46,6 +109,8 @@ for (const r of routes) {
   for (const bad of ["hello-world", "typography-check", "welcome"]) if (r.includes(bad)) P("P1", `fixture/draft route leaked: ${r}`);
 }
 for (const d of blogDirs) if (!blogPages.includes(d)) P("P1", `blog not generated: ${d}`);
+for (const d of draftDirs) if (blogPages.includes(d)) P("P1", `draft generated: ${d}`);
+for (const d of blogPages) if (!blogDirs.includes(d)) P("P1", `unexpected blog page: ${d}`);
 for (const d of projDirs) if (!projPages.includes(d)) P("P1", `project not generated: ${d}`);
 
 // ---------- 4. Internal link + anchor crawl ----------
@@ -87,11 +152,24 @@ for (const [route, html] of Object.entries(pageHtml)) {
 }
 info.push(`links checked: ${checked}, broken links: ${brokenLinks}, broken anchors: ${brokenAnchors}`);
 
+// Self-hosted font references must resolve.
+const fontCss = fs.readFileSync(path.join(ROOT, "public/fonts/fonts.css"), "utf8");
+const fontUrls = [...fontCss.matchAll(/url\("(\/fonts\/[^"]+)"\)/g)].map(m => m[1]);
+const missingFonts = [...new Set(fontUrls)].filter(u => !fs.existsSync(path.join(ROOT, "public", u.replace(/^\//, ""))));
+if (missingFonts.length) P("P1", `missing font files: ${missingFonts.slice(0, 5).join(", ")}`);
+info.push(`font files referenced: ${new Set(fontUrls).size}, missing: ${missingFonts.length}`);
+
 // ---------- 5. SEO ----------
 let seoErr = 0;
 for (const [route, html] of Object.entries(pageHtml)) {
-  const need = ["<title>", 'name="description"', 'rel="canonical"', 'property="og:title"', 'property="og:description"', 'property="og:url"', 'property="og:image"', 'property="og:site_name"'];
+  if (route.startsWith("/post/")) continue;
+  const need = ["<title>", 'name="description"', 'name="author"', 'rel="canonical"', 'property="og:title"', 'property="og:description"', 'property="og:url"', 'property="og:image"', 'property="og:image:alt"', 'property="og:site_name"'];
   for (const n of need) if (!html.includes(n)) { seoErr++; P("P2", `${route}: missing ${n}`); }
+  const h1Count = (html.match(/<h1[ >]/g) || []).length;
+  if (h1Count !== 1) { seoErr++; P("P1", `${route}: expected exactly one h1, found ${h1Count}`); }
+  if (route === "/404" && !html.includes('name="robots" content="noindex"')) {
+    seoErr++; P("P2", "/404: missing noindex");
+  }
   const head = html.slice(0, html.indexOf("</head>"));
   for (const bad of ["localhost", "127.0.0.1", "42.194.206.190", "github.io/hugo-blog", "holtwood.github.io/hugo-blog"]) {
     if (head.includes(bad)) { seoErr++; P("P1", `${route}: dev/old URL leak in <head> "${bad}"`); }
@@ -104,7 +182,10 @@ const rss = fs.readFileSync(path.join(DIST, "rss.xml"), "utf8");
 const rssItems = (rss.match(/<item>/g) || []).length;
 const rssBad = [...rss.matchAll(/<link>([^<]+)<\/link>/g)].map(m => m[1])
   .filter(u => !u.match(/^https:\/\/imshane\.site\/(blog\/.+\/|)$/));
-if (rssItems !== 40) P("P1", `RSS items ${rssItems} != 40`);
+if (rssItems !== blogDirs.length) P("P1", `RSS items ${rssItems} != ${blogDirs.length}`);
+for (const slug of blogDirs) {
+  if (!rss.includes(`<link>https://imshane.site/blog/${slug}/</link>`)) P("P1", `RSS missing ${slug}`);
+}
 if (rssBad.length) P("P1", `RSS non-blog links: ${rssBad.join(",")}`);
 info.push(`RSS items: ${rssItems}`);
 
@@ -124,8 +205,8 @@ for (const d of blogPages) {
 info.push(`posts with TOC: ${tocCount}`);
 // tags bidirectional: article tags link /tags/x/ exists; tag page lists same count
 const tagCountsSrc = {};
-for (const d of blogDirs) {
-  const { data } = matter(fs.readFileSync(path.join(SRCBLOG, d, "index.md"), "utf8"));
+for (const { data } of blogSources) {
+  if (data.draft) continue;
   for (const t of data.tags || []) tagCountsSrc[t] = (tagCountsSrc[t] || 0) + 1;
 }
 for (const [t, n] of Object.entries(tagCountsSrc)) {
@@ -139,7 +220,7 @@ info.push(`distinct tags: ${Object.keys(tagCountsSrc).length}`);
 
 // ---------- 10. Projects order + links ----------
 const projIndex = fs.readFileSync(path.join(DIST, "projects", "index.html"), "utf8");
-const order = ["cuflash", "tiny-llm", "paged-serving", "trifuse", "cuda-foundations", "cloud-bench", "site"];
+const order = projSources.map(post => post.slug);
 let lastIdx = -1;
 for (const slug of order) {
   const idx = projIndex.indexOf(`/projects/${slug}/`);
@@ -204,15 +285,18 @@ for (const f of ["src/consts.ts", "src/components/Footer.astro", "src/components
 
 // ---------- 13. External runtime resources ----------
 let extFonts = 0, remoteImgs = 0, trackers = 0;
+const analyticsUrls = new Set();
 for (const [route, html] of Object.entries(pageHtml)) {
   for (const m of html.matchAll(/<link[^>]+href="(https?:[^"]+)"|<script[^>]+src="(https?:[^"]+)"/g)) {
     const u = m[1] || m[2];
     if (/fonts\.(googleapis|gstatic)/.test(u)) { extFonts++; P("P2", `${route}: external font ${u}`); }
     else if (/google-analytics|googletagmanager|umami|plausible|clarity|baidu/i.test(u)) { trackers++; P("P1", `${route}: tracker ${u}`); }
+    else if (/goatcounter|stats\./i.test(u)) { analyticsUrls.add(u); }
   }
   for (const m of html.matchAll(/<img[^>]+src="(https?:[^"]+)"/g)) { remoteImgs++; P("P2", `${route}: remote img ${m[1].slice(0, 80)}`); }
 }
-info.push(`external fonts: ${extFonts}, remote imgs: ${remoteImgs}, trackers: ${trackers}`);
+info.push(`external fonts: ${extFonts}, remote imgs: ${remoteImgs}, third-party trackers: ${trackers}`);
+info.push(`self-hosted analytics: ${analyticsUrls.size ? [...analyticsUrls].join(", ") : "0"}`);
 
 // ---------- output ----------
 console.log("== INFO =="); info.forEach(i => console.log("  " + i));
@@ -221,3 +305,4 @@ if (!issues.length) console.log("  none");
 const bySev = { P0: 0, P1: 0, P2: 0, P3: 0 };
 for (const i of issues) { bySev[i.sev]++; console.log(`  ${i.sev}  ${i.msg}`); }
 console.log("\n== SEVERITY ==", JSON.stringify(bySev));
+process.exitCode = issues.some(i => i.sev === "P0" || i.sev === "P1") ? 1 : 0;

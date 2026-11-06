@@ -5,7 +5,7 @@ import { SITE } from "@consts";
 import BackToTop from "@components/BackToTop.astro";
 ---
 
-<footer class="animate">
+<footer>
   <Container>
     <div class="relative">
       <div class="absolute right-0 -top-20">
@@ -15,19 +15,19 @@ import BackToTop from "@components/BackToTop.astro";
     <div class="space-y-3">
       <div class="flex flex-wrap justify-between items-center gap-2">
         <div>
-          &copy; 2026 Shane · 简说笔记
+          &copy; {new Date().getFullYear()} Shane · 简说笔记
         </div>
         <div class="flex flex-wrap gap-1 items-center">
           <Link href="https://github.com/holtwood" external>
             GitHub
           </Link>
-          <span>·</span>
+          <span aria-hidden="true">·</span>
           <Link href="/rss.xml" external>
             RSS
           </Link>
           {SITE.EMAIL && (
             <>
-              <span>·</span>
+              <span aria-hidden="true">·</span>
               <Link href={`mailto:${SITE.EMAIL}`}>
                 Email
               </Link>
@@ -35,7 +35,7 @@ import BackToTop from "@components/BackToTop.astro";
           )}
         </div>
       </div>
-      <div class="text-xs opacity-60">
+      <div class="text-xs text-black/60 dark:text-white/70">
         <Link href="https://beian.miit.gov.cn" external underline={false}>
           粤ICP备2026121144号
         </Link>

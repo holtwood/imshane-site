@@ -102,4 +102,4 @@ Phase 5 期间发现并修复：
 
 ## 逐篇 URL 映射
 
-见 `old-url-map.csv`（40 行 + header，含 source_file/old_slug/new_slug/old_url/new_url/title）。
+见 `old-url-map.csv`（40 行 + header，列为 `old_url,new_url,title`）。

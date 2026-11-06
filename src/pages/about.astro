@@ -20,18 +20,18 @@ const work = await Promise.all(
   <Container>
     <div class="space-y-10">
       <div class="animate space-y-2">
-        <div class="font-semibold text-black dark:text-white text-xl">
+        <h1 class="font-semibold text-black dark:text-white text-xl">
           Shane
-        </div>
-        <div class="text-sm opacity-75">
+        </h1>
+        <div class="text-sm text-black/60 dark:text-white/70">
           Software Engineer
         </div>
       </div>
 
       <section class="animate space-y-4">
-        <h5 class="font-semibold text-black dark:text-white">
+        <h2 class="font-semibold text-black dark:text-white">
           Introduction
-        </h5>
+        </h2>
         <article class="space-y-4">
           <p>
             软件工程师。写过医学算法软件，做过实时音视频后台，
@@ -46,9 +46,9 @@ const work = await Promise.all(
       </section>
 
       <section class="animate space-y-4">
-        <h5 class="font-semibold text-black dark:text-white">
+        <h2 class="font-semibold text-black dark:text-white">
           Focus
-        </h5>
+        </h2>
         <ul class="flex flex-col gap-1">
           <li>C++</li>
           <li>AI Infrastructure</li>
@@ -59,19 +59,19 @@ const work = await Promise.all(
       </section>
 
       <section class="animate space-y-4">
-        <h5 class="font-semibold text-black dark:text-white">
+        <h2 class="font-semibold text-black dark:text-white">
           Experience
-        </h5>
+        </h2>
         <ul class="flex flex-col space-y-6">
           {work.map(entry => (
             <li>
-              <div class="text-sm opacity-75">
+              <div class="text-sm text-black/60 dark:text-white/70">
                 {yearRange(entry.data.startYear, entry.data.endYear)}
               </div>
               <div class="font-semibold text-black dark:text-white">
                 {entry.data.company}
               </div>
-              <div class="text-sm opacity-75">
+              <div class="text-sm text-black/60 dark:text-white/70">
                 {entry.data.role}
               </div>
               <article class="mt-2">
@@ -83,16 +83,16 @@ const work = await Promise.all(
       </section>
 
       <section class="animate space-y-4">
-        <h5 class="font-semibold text-black dark:text-white">
+        <h2 class="font-semibold text-black dark:text-white">
           Elsewhere
-        </h5>
+        </h2>
         <ul class="flex flex-wrap gap-2">
           {SOCIALS.map(s => (
             <li class="flex gap-x-2 text-nowrap">
               <Link href={s.HREF} external aria-label={`Shane on ${s.NAME}`}>
                 {s.NAME}
               </Link>
-              {"/"}
+              <span aria-hidden="true">/</span>
             </li>
           ))}
           <li class="text-nowrap">

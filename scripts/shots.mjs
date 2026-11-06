@@ -1,5 +1,6 @@
 // Phase 8 QA 截图：dist/ 静态服务 + Playwright
 import { chromium } from "playwright";
+import fs from "node:fs";
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
@@ -7,7 +8,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const DIST = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../dist");
-const OUT = "/tmp/qa-shots";
+const OUT = process.env.OUT || "/tmp/qa-shots";
+fs.mkdirSync(OUT, { recursive: true });
 const MIME = { ".html": "text/html", ".css": "text/css", ".js": "text/javascript", ".svg": "image/svg+xml", ".png": "image/png", ".jpg": "image/jpeg", ".xml": "application/xml", ".txt": "text/plain", ".webp": "image/webp", ".woff2": "font/woff2", ".ico": "image/x-icon" };
 
 const server = createServer(async (req, res) => {
@@ -44,7 +46,7 @@ const jobs = [
   ["mobile-projects", "/projects/", { w: 390, h: 844 }],
 ];
 for (const [name, route, opt] of jobs) {
-  const ctx = await browser.newContext({ viewport: { width: opt.w, height: opt.h }, deviceScaleFactor: 1 });
+  const ctx = await browser.newContext({ viewport: { width: opt.w, height: opt.h }, deviceScaleFactor: 1, reducedMotion: "reduce" });
   const page = await ctx.newPage();
   if (opt.dark) await page.addInitScript(() => localStorage.setItem("theme", "dark"));
   await page.goto(base + route, { waitUntil: "networkidle" });

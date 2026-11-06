@@ -14,10 +14,10 @@ const projects = (await getCollection("projects"))
   <Container>
     <div class="space-y-10">
       <div class="animate space-y-2">
-        <div class="font-semibold text-black dark:text-white">
+        <h1 class="font-semibold text-black dark:text-white">
           Projects
-        </div>
-        <p class="text-sm opacity-75">
+        </h1>
+        <p class="text-sm text-black/60 dark:text-white/70">
           Things I've built and explored.
         </p>
       </div>
@@ -27,11 +27,11 @@ const projects = (await getCollection("projects"))
             <Link href={`/projects/${project.slug}/`} underline={false}>
               <span class="font-semibold text-black dark:text-white">{project.data.title}</span>
             </Link>
-            <p class="text-sm opacity-75">
+            <p class="text-sm text-black/60 dark:text-white/70">
               {project.data.description}
             </p>
             {project.data.tags.length > 0 && (
-              <p class="text-sm opacity-50">
+              <p class="text-sm text-black/60 dark:text-white/70">
                 {project.data.tags.join(" · ")}
               </p>
             )}
