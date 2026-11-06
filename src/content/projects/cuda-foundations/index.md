@@ -4,7 +4,7 @@ description: "系统性 CUDA 算子工程学习路径：从 SGEMM 优化阶梯�
 date: "2026-09-16"
 order: 5
 tags: ["CUDA", "C++", "SGEMM", "HPC"]
-repoURL: "https://github.com/open-infra-ai/cuda-foundations"
+repoURL: "https://github.com/holtwood-systems/cuda-foundations"
 ---
 
 ## Overview

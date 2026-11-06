@@ -21,4 +21,4 @@ pnpm build      # astro check && astro build → dist/
 
 ## 部署
 
-纯静态输出：`pnpm build` 生成 `dist/`，任意静态托管/Nginx/Caddy 直接服务即可，无服务端运行时、无数据库、无外部字体与追踪脚本。
+纯静态输出：`pnpm build` 生成 `dist/`，任意静态托管/Nginx/Caddy 直接服务即可，无服务端运行时、无数据库；字体自托管，分析使用自托管 GoatCounter。

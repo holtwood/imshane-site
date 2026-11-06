@@ -2,9 +2,9 @@
 title: "cloud-bench"
 description: "云服务器深度评测脚本与方法论：fio p99 长尾延迟、%steal 超售检测、物理核/线程拆分与指令集检查，原始产物全量保留可复核。"
 date: "2026-09-14"
-order: 6
+order: 7
 tags: ["Shell", "Benchmark", "fio"]
-repoURL: "https://github.com/holtwood/cloud-bench"
+repoURL: "https://github.com/holtwood-projects/cloud-bench"
 ---
 
 ## Overview

@@ -5,14 +5,14 @@ date: "2026-09-16"
 featured: true
 order: 1
 tags: ["CUDA", "C++", "FlashAttention", "Tensor Core"]
-repoURL: "https://github.com/open-infra-ai/cuflash"
+repoURL: "https://github.com/holtwood-systems/cuflash"
 ---
 
 ## Overview
 
 cuflash 是一个从零手写的 CUDA FlashAttention 深度实现：从正确起步，经标量内核 → WMMA Tensor Core 前向的优化迭代，形成有数据支撑的性能叙事。教学可读性为底色，内核深度为作品定位。
 
-项目当前处于 stable 维护收敛阶段（最新 Release 0.6.0），只修正确性 bug 与文档，不再扩展新功能。
+项目当前处于 stable 维护收敛阶段（最新 Release v0.6.0），只修正确性 bug 与文档，不再扩展新功能。
 
 ## Highlights
 
@@ -28,4 +28,4 @@ cuflash 是一个从零手写的 CUDA FlashAttention 深度实现：从正确起
 
 CUDA · C++ · WMMA Tensor Core · Google Benchmark · C ABI · VitePress
 
-本仓库是 open-infra-ai 五仓学习路径中的 CUDA kernel 专项仓：CUDA 基础在 cuda-foundations，Triton 参考实现在 trifuse，运行时与 Serving 分别在 tiny-llm 与 paged-serving。
+本仓库是 holtwood-systems 系统路径中的 CUDA kernel 专项仓：CUDA 基础在 cuda-foundations，Triton 参考实现在 trifuse，运行时与 Serving 分别在 tiny-llm 与 paged-serving。

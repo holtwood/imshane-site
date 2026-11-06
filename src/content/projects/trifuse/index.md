@@ -4,7 +4,7 @@ description: "面向 Transformer 推理的可验证 Triton 融合算子：RMSNor
 date: "2026-09-16"
 order: 4
 tags: ["Triton", "Python", "GPU Ops"]
-repoURL: "https://github.com/open-infra-ai/trifuse"
+repoURL: "https://github.com/holtwood-systems/trifuse"
 ---
 
 ## Overview

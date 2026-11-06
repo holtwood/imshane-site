@@ -22,7 +22,7 @@ export const BLOG: Metadata = {
 
 export const PROJECTS: Metadata = {
   TITLE: "Projects",
-  DESCRIPTION: "个人项目与开源作品。",
+  DESCRIPTION: "AI Infra / HPC 系统项目、比赛记录与可复现性能证据。",
 };
 
 export const ABOUT: Metadata = {

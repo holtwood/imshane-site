@@ -2,7 +2,7 @@
 title: "imshane.site"
 description: "个人技术网站，将旧 Hugo 博客迁移至 Astro，并整合技术写作、项目展示和个人介绍。"
 date: "2026-09-17"
-order: 7
+order: 9
 tags: ["Astro", "TypeScript", "Static Site"]
 ---
 

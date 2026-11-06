@@ -5,12 +5,12 @@ date: "2026-09-16"
 featured: true
 order: 3
 tags: ["Rust", "LLM Serving", "Systems"]
-repoURL: "https://github.com/open-infra-ai/paged-serving"
+repoURL: "https://github.com/holtwood-systems/paged-serving"
 ---
 
 ## Overview
 
-paged-serving 是一个基于 Rust 构建的 LLM Serving 控制面，以模块化、可测试的架构练习分页 KV 内存管理与连续批处理调度。控制面核心（分页 KV / continuous batching / 调度 / API）v0.2.0 已稳定。
+paged-serving 是一个基于 Rust 构建的 LLM Serving 控制面，以模块化、可测试的架构练习分页 KV 内存管理与连续批处理调度。控制面核心（分页 KV / continuous batching / 调度 / API）v0.2.1 已稳定。
 
 计算后端为双路径设计：默认 CPU 参考执行器提供确定性输出供测试与 CI；`tiny-llm` cargo feature 下接入真实 CUDA 运行时，将各序列 block_tables 上传至 tiny-llm 的分页 KV 池。
 
