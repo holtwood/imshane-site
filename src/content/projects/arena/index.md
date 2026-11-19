@@ -22,7 +22,7 @@ holtwood-arena 是比赛与 benchmark 的归档组织。它承载两类东西：
 
 ## 公开入口
 
-- [race](https://github.com/holtwood-arena/race) — Speed Demon / 1BRC / PPC / DIMACS / AHC 性能实验室
+- [perf-race-lab](https://github.com/holtwood-arena/perf-race-lab) — Speed Demon / 1BRC / PPC / DIMACS / AHC 性能实验室
 - [kunpeng-s2-conv](https://github.com/holtwood-arena/kunpeng-s2-conv) — 卷积优化的单变量归因与方法论
 - [kunpeng-s3-openfoam](https://github.com/holtwood-arena/kunpeng-s3-openfoam) — OpenFOAM 静态研究存档
 
