@@ -130,7 +130,7 @@
 | canonical / og:url 值 | ✓ 全站 `https://imshane.site/...`（此前只查"无坏值"，已补查"值正确"） |
 | og:image 目标 | ✓ `public/og-default.png` → `dist/og-default.png` 真实存在 |
 | 无 alt 的 `<img>` | 0（此前只正向统计有 alt 的，已补负向检查）|
-| 私有仓库名泄露 | 0（due-noted / whenfree / worth-keeping / recipegrid / kvtier / cloud-bench-server 均不在 dist）|
+| 私有仓库名泄露 | 0（按私有台账清单逐个比对，均不在 dist；清单不写入公开文档）|
 | prev/next 覆盖 | 40/40 篇全有（此前只抽查）|
 | featured 源数据 | 恰好 3 个 `featured: true`；order 1–7 无重复；blog/project 均无 draft |
 | 阅读时间 | 40/40 篇均有「约 X 分钟」|
