@@ -11,6 +11,7 @@
     "dev:network": "astro dev --host",
     "prebuild": "node scripts/generate-legacy-redirects.mjs",
     "build": "astro check && astro build",
+    "postbuild": "node scripts/generate-baidu-urls.mjs",
     "preview": "astro preview",
     "preview:network": "astro preview --host",
     "astro": "astro",
